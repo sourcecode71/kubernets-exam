@@ -1,0 +1,45 @@
+---
+# Namespace creation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kernelns
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shared-empty-dir
+  namespace: kernelns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shared-empty-dir
+  template:
+    metadata:
+      labels:
+        app: shared-empty-dir
+    spec:
+      containers:
+      - name: container1
+        image: alpine
+        command: ["sleep", "3600"]
+        volumeMounts:
+        - mountPath: /data
+          name: shared-volume
+      - name: container2
+        image: alpine
+        command: ["sleep", "3600"]
+        volumeMounts:
+        - mountPath: /data
+          name: shared-volume
+      - name: container3
+        image: alpine
+        command: ["sleep", "3600"]
+        volumeMounts:
+        - mountPath: /data
+          name: shared-volume
+      volumes:
+      - name: shared-volume
+        emptyDir: {}

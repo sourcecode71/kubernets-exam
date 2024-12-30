@@ -1,0 +1,54 @@
+---
+# Namespace creation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kernelns
+---
+# ConfigMap to store the name variable
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap
+  namespace: kernelns
+  labels:
+    app: task1
+    environment: test
+data:
+  name: mostafiz
+---
+# Deployment with a single replica and custom command
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task1-deployment
+  namespace: kernelns
+  labels:
+    app: task1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task1
+  template:
+    metadata:
+      labels:
+        app: task1
+    spec:
+      containers:
+        - name: alpine-container
+          image: alpine
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              while true; do
+                echo "$(NAME)";
+                sleep 5;
+              done
+          env:
+            - name: NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: name
